@@ -3,8 +3,12 @@ import { Tabs } from 'lucide-react'
 import { useState } from 'react'
 import { LucideImage, LucideList, LucideSparkles, LucideVideo   } from 'lucide-react'
 import AnswerDisplay from './AnswerDisplay'
+import axios from 'axios'
+import { useEffect } from 'react'
+import { SEARCH_RESULT } from '../../../../../services/Shared'
 
-const tabs=[
+
+    const tabs=[
     { label: 'Answer', icon:LucideSparkles},
     { label: 'Images', icon:LucideImage},
     { label: 'Videos', icon:LucideVideo},
@@ -13,6 +17,28 @@ const tabs=[
 function DisplayResult({searchInputRecord}) {
  
     const [activeTab, setActiveTab] = useState('Answer');
+     const [searchResult,setSearchResult]=useState(SEARCH_RESULT);
+
+
+    useEffect(() => {
+        if (!searchInputRecord?.searchInput) {
+            return;
+        }
+         GetSearchApiResult();
+    }, [searchInputRecord?.searchInput]);
+
+    const GetSearchApiResult=async()=>{
+        console.log('Query being sent:', searchInputRecord?.searchInput);
+        const result = await axios.post('/api/search',{
+            query:searchInputRecord?.searchInput
+
+        })
+        console.log(result.data);
+        console.log(JSON.stringify(result.data))
+    }
+
+
+
       return (
     <div className='mt-7'>
         <h2 className='font-medium text-3xl line-clamp-2' >{searchInputRecord?.searchInput}</h2>
@@ -67,7 +93,7 @@ function DisplayResult({searchInputRecord}) {
 </div>
 <div>
     {activeTab=='Answer'?
-    <AnswerDisplay/>:null
+    <AnswerDisplay searchResult={searchResult}/>:null
     }
          
 </div>
