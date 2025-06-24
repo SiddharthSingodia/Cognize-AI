@@ -6,6 +6,8 @@ import AnswerDisplay from './AnswerDisplay'
 import axios from 'axios'
 import { useEffect } from 'react'
 import { SEARCH_RESULT } from '../../../../../services/Shared'
+import supabase from '../../../../../services/superbase.jsx'
+import { useParams } from 'next/navigation'
 
 
     const tabs=[
@@ -17,24 +19,53 @@ import { SEARCH_RESULT } from '../../../../../services/Shared'
 function DisplayResult({searchInputRecord}) {
  
     const [activeTab, setActiveTab] = useState('Answer');
-     const [searchResult,setSearchResult]=useState(SEARCH_RESULT);
+    const [searchResult,setSearchResult]=useState(SEARCH_RESULT);
+    const{libId}=useParams();
 
 
     useEffect(() => {
         if (!searchInputRecord?.searchInput) {
             return;
         }
-         GetSearchApiResult();
-    }, [searchInputRecord?.searchInput]);
+       searchInputRecord&&GetSearchApiResult();
+    }, [searchInputRecord]);
 
     const GetSearchApiResult=async()=>{
-        console.log('Query being sent:', searchInputRecord?.searchInput);
-        const result = await axios.post('/api/search',{
-            query:searchInputRecord?.searchInput
+       
+        // const result = await axios.post('/api/search',{
+        //     // query:searchInputRecord?.searchInput
+        //     searchInput:searchInputRecord?.searchInput,
+        //     searchType:searchInputRecord?.type   
 
-        })
-        console.log(result.data);
-        console.log(JSON.stringify(result.data))
+        // })
+        // console.log(result.data);
+        // console.log(JSON.stringify(result.data))
+
+         const searchResp= SEARCH_RESULT;
+        //save to db
+        const formattedSearchResp = searchResp?.items?.map((item) => {
+            return {
+                title: item.title,
+                link: item.link,
+                snippet: item.snippet,
+                url: item.link,
+                img: item.pagemap?.cse_image?.[0]?.src || item.pagemap?.cse_thumbnail?.[0]?.src || '',
+            }
+        });
+        console.log("Formatted Search Response:", formattedSearchResp);
+
+        //fetch latest from db
+        const {data, error}=await supabase
+        .from('Chats')
+        .insert([
+            { 
+                llibid:libId,
+                searchResult:formattedSearchResp
+            }
+        ])
+        .select()
+        console.log(data);
+        
     }
 
 
