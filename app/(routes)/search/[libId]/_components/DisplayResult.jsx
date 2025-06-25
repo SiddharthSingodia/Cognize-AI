@@ -10,6 +10,7 @@ import supabase from '../../../../../services/superbase.jsx'
 import { useParams } from 'next/navigation'
 
 
+
     const tabs=[
     { label: 'Answer', icon:LucideSparkles},
     { label: 'Images', icon:LucideImage},
@@ -24,10 +25,10 @@ function DisplayResult({searchInputRecord}) {
 
 
     useEffect(() => {
-        if (!searchInputRecord?.searchInput) {
-            return;
-        }
-       searchInputRecord&&GetSearchApiResult();
+        // if (!searchInputRecord?.searchInput) {
+        //     return;
+        // }
+       searchInputRecord && GetSearchApiResult();
     }, [searchInputRecord]);
 
     const GetSearchApiResult=async()=>{
@@ -43,28 +44,42 @@ function DisplayResult({searchInputRecord}) {
 
          const searchResp= SEARCH_RESULT;
         //save to db
-        const formattedSearchResp = searchResp?.items?.map((item) => {
+        const formattedSearchResp = searchResp?.items?.map((item,index) => {
             return {
-                title: item.title,
-                link: item.link,
+                title: item?.title,
                 snippet: item.snippet,
-                url: item.link,
+                displayLink:item?.displayLink,
+                url:item?.link,
                 img: item.pagemap?.cse_image?.[0]?.src || item.pagemap?.cse_thumbnail?.[0]?.src || '',
+
             }
         });
         console.log("Formatted Search Response:", formattedSearchResp);
 
         //fetch latest from db
         const {data, error}=await supabase
-        .from('Chats')
-        .insert([
+          .from('Chats')
+          .insert([
             { 
-                llibid:libId,
+                libId:libId,
                 searchResult:formattedSearchResp
             }
         ])
         .select()
-        console.log(data);
+     console.log(data[0].id);
+
+        await GenerateAIResp(formattedSearchResp,data[0].id);
+        // pass to llm 
+          
+    }
+
+    const GenerateAIResp= async(formattedSearchResp, recordId)=>{
+        const result = await axios.post('/api/llm-model',{
+            searchInput:searchInputRecord?.searchInput,
+            searchResult:formattedSearchResp,
+            recordId:recordId
+        })
+        console.log(result.data);
         
     }
 

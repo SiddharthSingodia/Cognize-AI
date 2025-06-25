@@ -68,7 +68,7 @@ export const SEARCH_RESULT = {
         "totalResults": "1700000",
         "formattedTotalResults": "1,700,000"
     },
-    "items": [
+     "items": [
         {
             "kind": "customsearch#result",
             "title": "Striver's SDE Sheet – Top Coding Interview Problems",
