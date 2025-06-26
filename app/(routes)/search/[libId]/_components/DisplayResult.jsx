@@ -11,6 +11,8 @@ import { useParams } from 'next/navigation'
 
 
 
+
+
     const tabs=[
     { label: 'Answer', icon:LucideSparkles},
     { label: 'Images', icon:LucideImage},
@@ -66,7 +68,7 @@ function DisplayResult({searchInputRecord}) {
             }
         ])
         .select()
-     console.log(data[0].id);
+    //  console.log(data[0].id);
 
         await GenerateAIResp(formattedSearchResp,data[0].id);
         // pass to llm 
@@ -80,6 +82,30 @@ function DisplayResult({searchInputRecord}) {
             recordId:recordId
         })
         console.log(result.data);
+        const runId=result.data;
+
+        const interval= setInterval(async()=>{
+
+            const runResp= await axios.post('/api/get-inngest-status',{
+                runId:runId
+            })
+
+            if(runResp?.data?.data[0]?.status==='completed'){
+                console.log("completed!!!");
+                clearInterval(interval);
+                // get updated daata from db
+                
+                
+            }
+
+        }, 1000);
+        // const runResp= await axios.post('/api/get-inngest-status',{
+        //             runId:runId
+        //         })
+        //         console.log(runResp.data)
+        
+       
+        
         
     }
 

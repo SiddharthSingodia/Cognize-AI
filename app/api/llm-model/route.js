@@ -12,6 +12,6 @@ export async function POST(req){
             recordId:recordId
         }
     })
-    return NextResponse.json({inngestRunId});
+    return NextResponse.json(inngestRunId.ids[0]);
             }
    

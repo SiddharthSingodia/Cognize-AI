@@ -16,26 +16,18 @@ export const llmModel= inngest.createFunction(
  { event:"llm-model"},
   async({event,step})=>{
     const aiResp = await step.ai.infer('generate-ai-llm-model-call', {
-      model: step.ai.model.gemini({
+      model: step.ai.models.gemini({
         model: 'gemini-1.5-flash',
         apiKey: process.env.GEMINI_API_KEY
       }),
       // the body written here is as per the need of gemini api , if use diff. llm then it may be different
-      body: {
+      body: { 
         contents: [
           {
-            role: 'system',
-            parts: [
-              {
-                text: 'Depends on user input sources, Summerize and search about the topic, Give me markdown text with proper formatting. User Input is:'
-                  + event.data.searchInput
-              }
-            ]
-          }, {
             role: 'user',
             parts: [
               {
-                text: JSON.stringify(event.data.searchResult)
+                text: `Depends on user input sources, Summerize and search about the topic, Give me markdown text with proper formatting. User Input is: ${event.data.searchInput}. \n\nHere are the search results to summarize:\n ${JSON.stringify(event.data.searchResult)}`
               }
             ]
           }
