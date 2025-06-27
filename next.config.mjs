@@ -9,6 +9,7 @@ const nextConfig = {
         pathname: '/s2/favicons/**',
       },
     ],
+    domains: ['www.google.com'],
   },
 };
 

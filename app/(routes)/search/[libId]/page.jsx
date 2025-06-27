@@ -8,6 +8,7 @@ import DisplayResult from './_components/DisplayResult'
 
 
 
+
  export default function SearchQueryResult(){
     const {libId}=useParams();  
      const[searchInputRecord,setSearchInputRecord]=useState(null);
@@ -19,7 +20,7 @@ import DisplayResult from './_components/DisplayResult'
     const GetSearchQueryRecord= async()=>{
 
         let {data:Library, error}=await supabase.from('Library')
-        .select('*')
+        .select('*, Chats(*)')
         .eq('libId',libId);
             console.log(Library[0]);
             setSearchInputRecord(Library[0]);
@@ -34,4 +35,4 @@ import DisplayResult from './_components/DisplayResult'
             </h2>
         </div>
     )
-}   
+}     

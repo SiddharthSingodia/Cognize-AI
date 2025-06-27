@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 import { SEARCH_RESULT } from '../../../../../services/Shared'
 import supabase from '../../../../../services/superbase.jsx'
 import { useParams } from 'next/navigation'
+import ImageListTab from './ImageListTab'
 
 
 
@@ -30,7 +31,8 @@ function DisplayResult({searchInputRecord}) {
         // if (!searchInputRecord?.searchInput) {
         //     return;
         // }
-       searchInputRecord && GetSearchApiResult();
+       searchInputRecord?.Chats?.length==0 && GetSearchApiResult();
+       setSearchResult(searchInputRecord)  
     }, [searchInputRecord]);
 
     const GetSearchApiResult=async()=>{
@@ -53,6 +55,7 @@ function DisplayResult({searchInputRecord}) {
                 displayLink:item?.displayLink,
                 url:item?.link,
                 img: item.pagemap?.cse_image?.[0]?.src || item.pagemap?.cse_thumbnail?.[0]?.src || '',
+                thumbnail: item.pagemap?.cse_thumbnail?.[0]?.src || '',
 
             }
         });
@@ -64,7 +67,8 @@ function DisplayResult({searchInputRecord}) {
           .insert([
             { 
                 libId:libId,
-                searchResult:formattedSearchResp
+                searchResult:formattedSearchResp,
+                userSearchInput: searchInputRecord?.searchInput
             }
         ])
         .select()
@@ -90,8 +94,8 @@ function DisplayResult({searchInputRecord}) {
                 runId:runId
             })
 
-            if(runResp?.data?.data[0]?.status==='completed'){
-                console.log("completed!!!");
+            if(runResp?.data?.data[0]?.status=='Completed'){
+                console.log("Completed!!!");
                 clearInterval(interval);
                 // get updated daata from db
                 
@@ -113,62 +117,40 @@ function DisplayResult({searchInputRecord}) {
 
       return (
     <div className='mt-7'>
-        <h2 className='font-medium text-3xl line-clamp-2' >{searchInputRecord?.searchInput}</h2>
-        
-        
-<div className="flex items-center space-x-6 border-b border-gray-200 pb-2 mt-6">
+        {searchResult?.Chats?.map((chat, index) => (
+            <div key={index}>
 
-{tabs.map(({ label, icon: Icon, badge }) => (
-
-    <button
-
-        key={label}
-
-        onClick={() => setActiveTab(label)}
-
-        className={`flex items-center gap-1 relative text-sm font-medium text-gray-700 hover:text-black ${activeTab === label ? 'text-black' : ''
-
-            }`}
-
-    >
-
-        <Icon className="w-4 h-4" />
-
-        <span>{label}</span>
-
-        {badge && (
-
-            <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-
-                {badge}
-
-            </span>
-
-        )}
-
-        {activeTab === label && (
-
-            <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-black rounded"></span>
-
-        )}
-
-    </button>
-
-))}
-
-<div className="ml-auto text-sm text-gray-500">
-
-    1 task <span className="ml-1">↗</span>
-
-</div>
-
-</div>
-<div>
-    {activeTab=='Answer'?
-    <AnswerDisplay searchResult={searchResult}/>:null
-    }
-         
-</div>
+                <h2 className='font-bold text-3xl text-gray-600 line-clamp-2'>{searchInputRecord?.searchInput}</h2>
+                <div className="flex items-center space-x-6 border-b border-gray-200 pb-2 mt-6">
+                    {tabs.map(({ label, icon: Icon, badge }) => (
+                        <button
+                            key={label}
+                            onClick={() => setActiveTab(label)}
+                            className={`flex items-center gap-1 relative text-sm font-medium text-gray-700 hover:text-black ${activeTab === label ? 'text-black' : ''}`}
+                        >
+                            <Icon className="w-4 h-4" />
+                            <span>{label}</span>
+                            {badge && (
+                                <span className="ml-1 text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                                    {badge}
+                                </span>
+                            )}
+                            {activeTab === label && (
+                                <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-black rounded"></span>
+                            )}
+                        </button>
+                    ))}
+                    <div className="ml-auto text-sm text-gray-500">
+                        1 task <span className="ml-1">↗</span>
+                    </div>
+                </div>
+                <div>
+                    {activeTab === 'Answer' ? <AnswerDisplay chat={chat} /> : 
+                    activeTab=='Images'? <ImageListTab chat={chat} /> :null}
+                </div>
+                <hr className='my-5'/> 
+            </div>
+        ))}
     </div>
   )
 }
