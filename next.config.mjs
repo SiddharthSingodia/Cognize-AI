@@ -8,8 +8,14 @@ const nextConfig = {
         port: '',
         pathname: '/s2/favicons/**',
       },
+      {
+        protocol: 'https',
+        hostname: '**',
+        port: '',
+        pathname: '**',
+      },
     ],
-    domains: ['www.google.com'],
+    domains: ['www.google.com', 'encrypted-tbn0.gstatic.com', 'yt3.googleusercontent.com', 'pbs.twimg.com'],
   },
 };
 

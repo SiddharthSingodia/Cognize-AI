@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tabs } from 'lucide-react' 
 import { useState } from 'react'
-import { LucideImage, LucideList, LucideSparkles, LucideVideo   } from 'lucide-react'
+import { LucideImage, LucideList, LucideSparkles, LucideVideo, Send } from 'lucide-react'
 import AnswerDisplay from './AnswerDisplay'
 import axios from 'axios'
 import { useEffect } from 'react'
@@ -9,6 +9,9 @@ import { SEARCH_RESULT } from '../../../../../services/Shared'
 import supabase from '../../../../../services/superbase.jsx'
 import { useParams } from 'next/navigation'
 import ImageListTab from './ImageListTab'
+import SourceListTab from './SourceListTab'
+import VideoListTab from './VideoListTab'
+import { Button } from '../../../../../components/ui/button.jsx'
 
 
 
@@ -25,28 +28,60 @@ function DisplayResult({searchInputRecord}) {
     const [activeTab, setActiveTab] = useState('Answer');
     const [searchResult,setSearchResult]=useState(SEARCH_RESULT);
     const{libId}=useParams();
+    const [loadingSearch, setLoadingSearch]=useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
+    const [userInput, setUserInput] = useState('');
 
+
+    // Reset hasSearched when libId changes
+    useEffect(() => {
+        setHasSearched(false);
+    }, [libId]);
 
     useEffect(() => {
-        // if (!searchInputRecord?.searchInput) {
-        //     return;
-        // }
-       searchInputRecord?.Chats?.length==0 && GetSearchApiResult();
-       setSearchResult(searchInputRecord)  
-    }, [searchInputRecord]);
+        if (!searchInputRecord) {
+            return;
+        }
+        
+        // Set the search result immediately
+        setSearchResult(searchInputRecord);
+        
+        // Only search if we haven't searched before and there are no chats
+        if (!hasSearched && (!searchInputRecord.Chats || searchInputRecord.Chats.length === 0)) {
+            setHasSearched(true);
+            GetSearchApiResult();
+        } else if (searchInputRecord.Chats && searchInputRecord.Chats.length > 0) {
+            // If chats exist, just get the latest records
+            GetSearchRecords();
+        }
+    }, [searchInputRecord, hasSearched, libId]);
 
     const GetSearchApiResult=async()=>{
+       setLoadingSearch(true);
        
-        // const result = await axios.post('/api/search',{
-        //     // query:searchInputRecord?.searchInput
-        //     searchInput:searchInputRecord?.searchInput,
-        //     searchType:searchInputRecord?.type   
+       // Check if a chat record already exists for this libId
+       const { data: existingChats, error: checkError } = await supabase
+         .from('Chats')
+         .select('*')
+         .eq('libId', libId);
+       
+       if (existingChats && existingChats.length > 0) {
+         console.log('Chat record already exists, skipping search');
+         setLoadingSearch(false);
+         await GetSearchRecords();
+         return;
+       }
+       
+        const result = await axios.post('/api/search',{
+            // query:searchInputRecord?.searchInput
+            searchInput:userInput??searchInputRecord?.searchInput,
+            searchType:searchInputRecord?.type??'Search'  
 
-        // })
-        // console.log(result.data);
-        // console.log(JSON.stringify(result.data))
-
-         const searchResp= SEARCH_RESULT;
+        })
+        console.log(result.data);
+        console.log(JSON.stringify(result.data))
+ 
+         const searchResp= result.data;
         //save to db
         const formattedSearchResp = searchResp?.items?.map((item,index) => {
             return {
@@ -56,6 +91,7 @@ function DisplayResult({searchInputRecord}) {
                 url:item?.link,
                 img: item.pagemap?.cse_image?.[0]?.src || item.pagemap?.cse_thumbnail?.[0]?.src || '',
                 thumbnail: item.pagemap?.cse_thumbnail?.[0]?.src || '',
+                video: item.pagemap?.cse_video?.[0]?.src || '',
 
             }
         });
@@ -73,7 +109,8 @@ function DisplayResult({searchInputRecord}) {
         ])
         .select()
     //  console.log(data[0].id);
-
+         await GetSearchRecords();
+         setLoadingSearch(false);
         await GenerateAIResp(formattedSearchResp,data[0].id);
         // pass to llm 
           
@@ -96,6 +133,7 @@ function DisplayResult({searchInputRecord}) {
 
             if(runResp?.data?.data[0]?.status=='Completed'){
                 console.log("Completed!!!");
+                await GetSearchRecords();
                 clearInterval(interval);
                 // get updated daata from db
                 
@@ -112,7 +150,15 @@ function DisplayResult({searchInputRecord}) {
         
         
     }
+    
+    const GetSearchRecords=async()=>{
+        let { data : Library, error}= await supabase
+        .from('Library')
+        .select('*, Chats(*)')
+        .eq('libId', libId)
 
+        setSearchResult(Library[0])
+    }
 
 
       return (
@@ -145,12 +191,25 @@ function DisplayResult({searchInputRecord}) {
                     </div>
                 </div>
                 <div>
-                    {activeTab === 'Answer' ? <AnswerDisplay chat={chat} /> : 
-                    activeTab=='Images'? <ImageListTab chat={chat} /> :null}
+                    {activeTab === 'Answer' ? <AnswerDisplay chat={chat} loadingSearch={loadingSearch}/> : 
+                    activeTab=='Images'? <ImageListTab chat={chat} /> :
+                    activeTab=='Sources'? <SourceListTab chat={chat}/>:
+                    activeTab=='Videos'? <VideoListTab chat={chat}/>:
+                    null}
                 </div>
                 <hr className='my-5'/> 
             </div>
         ))}
+        <div className='bg-white w-full mb-6 border rounded-lg shadow-md p-3 px-5 flex justify-between fixed bottom-6 max-w-md:max-w-xl xl:max-w-3xl'>
+            <input 
+                placeholder='Type Anything...' 
+                className='outline-none flex-1'
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+            />
+            {userInput && <Button onClick={GetSearchApiResult} disable={loadingSearch}>
+                {loadingSearch?<Loader2Icon className='animate-spin'/>:<Send/>}</Button>}
+        </div>
     </div>
   )
 }
