@@ -7,15 +7,15 @@ function DisplaySummery({aiResp}) {
   return (
     <div className='mt-7'>
         {!aiResp &&
-        <div>
-           <div className='w-full h-5 bg-slate-100 animate-pulse rounded-md'></div>
-           <div className='w-1/2  mt-2 h-5 bg-slate-100 animate-pulse rounded-md'></div>
-           <div className='w-[70%] mt-2 h-5 bg-slate-100 animate-pulse rounded-md'></div>
-           <div className='w-[50%] mt-2 h-5 bg-slate-100 animate-pulse rounded-md'></div>
-          
-        </div>
-        }
-        <ReactMarkdown
+    <div>
+       <div className='w-full h-5 bg-slate-100 animate-pulse rounded-md'></div>
+       <div className='w-1/2  mt-2 h-5 bg-slate-100 animate-pulse rounded-md'></div>
+       <div className='w-[70%] mt-2 h-5 bg-slate-100 animate-pulse rounded-md'></div>
+       <div className='w-[50%] mt-2 h-5 bg-slate-100 animate-pulse rounded-md'></div>
+      
+    </div> 
+    }
+         <ReactMarkdown
         
         components={{
 
@@ -59,7 +59,7 @@ function DisplaySummery({aiResp}) {
 
             ),
 
-            ul: ({ node, ...props }) => (
+            ul: ({ node, ordered,...props }) => (
 
                 <ul className="list-disc list-inside space-y-2 leading-relaxed" {...props} />
 

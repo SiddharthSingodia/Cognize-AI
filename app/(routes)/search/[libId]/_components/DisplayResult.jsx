@@ -12,7 +12,8 @@ import ImageListTab from './ImageListTab'
 import SourceListTab from './SourceListTab'
 import VideoListTab from './VideoListTab'
 import { Button } from '../../../../../components/ui/button.jsx'
-
+import { Loader2Icon } from 'lucide-react'
+import { Send } from 'lucide-react'
 
 
 
@@ -29,7 +30,7 @@ function DisplayResult({searchInputRecord}) {
     const [searchResult,setSearchResult]=useState(SEARCH_RESULT);
     const{libId}=useParams();
     const [loadingSearch, setLoadingSearch]=useState(false);
-    const [hasSearched, setHasSearched] = useState(false);
+  
     const [userInput, setUserInput] = useState('');
 
 
@@ -39,44 +40,19 @@ function DisplayResult({searchInputRecord}) {
     }, [libId]);
 
     useEffect(() => {
-        if (!searchInputRecord) {
-            return;
-        }
-        
-        // Set the search result immediately
-        setSearchResult(searchInputRecord);
-        
-        // Only search if we haven't searched before and there are no chats
-        if (!hasSearched && (!searchInputRecord.Chats || searchInputRecord.Chats.length === 0)) {
-            setHasSearched(true);
-            GetSearchApiResult();
-        } else if (searchInputRecord.Chats && searchInputRecord.Chats.length > 0) {
-            // If chats exist, just get the latest records
-            GetSearchRecords();
-        }
-    }, [searchInputRecord, hasSearched, libId]);
+        // if (!searchInputRecord?.searchInput) {
+        //     return;
+        // }
+       searchInputRecord?.Chats?.length==0 ? GetSearchApiResult():GetSearchRecords;
+       setSearchResult(searchInputRecord)  
+    }, [searchInputRecord]);
 
     const GetSearchApiResult=async()=>{
        setLoadingSearch(true);
-       
-       // Check if a chat record already exists for this libId
-       const { data: existingChats, error: checkError } = await supabase
-         .from('Chats')
-         .select('*')
-         .eq('libId', libId);
-       
-       if (existingChats && existingChats.length > 0) {
-         console.log('Chat record already exists, skipping search');
-         setLoadingSearch(false);
-         await GetSearchRecords();
-         return;
-       }
-       
         const result = await axios.post('/api/search',{
             // query:searchInputRecord?.searchInput
             searchInput:userInput??searchInputRecord?.searchInput,
-            searchType:searchInputRecord?.type??'Search'  
-
+            searchType:searchInputRecord?.type??'Search'
         })
         console.log(result.data);
         console.log(JSON.stringify(result.data))
@@ -109,8 +85,8 @@ function DisplayResult({searchInputRecord}) {
         ])
         .select()
     //  console.log(data[0].id);
-         await GetSearchRecords();
-         setLoadingSearch(false);
+    await GetSearchRecords();
+          setLoadingSearch(false);
         await GenerateAIResp(formattedSearchResp,data[0].id);
         // pass to llm 
           
@@ -199,16 +175,16 @@ function DisplayResult({searchInputRecord}) {
                 </div>
                 <hr className='my-5'/> 
             </div>
-        ))}
-        <div className='bg-white w-full mb-6 border rounded-lg shadow-md p-3 px-5 flex justify-between fixed bottom-6 max-w-md:max-w-xl xl:max-w-3xl'>
-            <input 
-                placeholder='Type Anything...' 
-                className='outline-none flex-1'
-                value={userInput}
-                onChange={(e) => setUserInput(e.target.value)}
-            />
-            {userInput && <Button onClick={GetSearchApiResult} disable={loadingSearch}>
-                {loadingSearch?<Loader2Icon className='animate-spin'/>:<Send/>}</Button>}
+        ))} 
+        <div className='bg-white w-full mb-6 border rounded-lg shadow-md p-3 px-5 flex justify-between fixed bottom-6 max-w-md lg:max-w-xl xl:max-w-3xl'>
+           <input 
+               placeholder='Type Anything...' 
+               className='outline-none flex-1'
+               
+               onChange={(e) => setUserInput(e.target.value)}
+           />
+           {userInput?.length && <Button onClick={GetSearchApiResult} disable={loadingSearch}>
+                {loadingSearch?<Loader2Icon className='animate-spin'/>:<Send/>} </Button>}
         </div>
     </div>
   )

@@ -48,15 +48,15 @@ export default function VideoListTab({chat}) {
             <Link href={result.url || '#'} target="_blank">
               <h3 className="text-sm font-medium line-clamp-2 hover:text-blue-600">{result.title}</h3>
             </Link>
-            <div className="flex items-center gap-1 mt-2 w-full overflow-hidden">
+            <div className="flex items-center gap-1 mt-2">
               <Image
                 src={`https://www.google.com/s2/favicons?domain=${result.displayLink}&sz=16`}
                 alt='favicon'
                 width={16}
                 height={16}
-                className="rounded-full flex-shrink-0"
-              />
-              <p className="text-xs text-gray-500 truncate w-full">{result.displayLink}</p>
+                className="rounded-full"
+                />
+                <p className="text-xs text-gray-500 truncate">{result.displayLink}</p>
             </div>
             {result.snippet && (
               <p className="text-xs text-gray-600 mt-1 line-clamp-2">{result.snippet}</p>

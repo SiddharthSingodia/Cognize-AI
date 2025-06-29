@@ -33,15 +33,15 @@ export default function SourceListTab({chat}) {
                 )}
               </div>
               <div className="flex-1">
-                <div className='flex items-center gap-1 mb-1 w-full overflow-hidden'>
+              <div className='flex items-center gap-1 mb-1'>
                   <Image
                     src={`https://www.google.com/s2/favicons?domain=${result.displayLink}&sz=16`}
                     alt='favicon'
                     width={16}
                     height={16}
-                    className="rounded-full flex-shrink-0"
-                  />
-                  <p className='text-sm text-gray-500 truncate w-full'>{result?.displayLink}</p>
+                    className="rounded-full"
+                    />
+                    <p className='text-sm text-gray-500'>{result?.displayLink}</p>
                 </div>
                 <Link href={result?.url || '#'} target='_blank'>
                   <h2 className='text-blue-700 font-medium hover:underline line-clamp-2 mb-1'>{result?.title}</h2>

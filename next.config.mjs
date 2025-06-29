@@ -15,7 +15,16 @@ const nextConfig = {
         pathname: '**',
       },
     ],
-    domains: ['www.google.com', 'encrypted-tbn0.gstatic.com', 'yt3.googleusercontent.com', 'pbs.twimg.com'],
+    domains: [
+      'www.google.com', 
+      'encrypted-tbn0.gstatic.com', 
+      'yt3.googleusercontent.com', 
+      'pbs.twimg.com',
+      'takeuforward-content-images.s3.ap-south-1.amazonaws.com',
+      'images.unsplash.com',
+      'cdn.pixabay.com',
+      'via.placeholder.com'
+    ],
   },
 };
 
