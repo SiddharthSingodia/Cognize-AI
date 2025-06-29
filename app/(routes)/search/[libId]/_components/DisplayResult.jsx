@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tabs } from 'lucide-react' 
 import { useState } from 'react'
-import { LucideImage, LucideList, LucideSparkles, LucideVideo, Send } from 'lucide-react'
+import { LucideImage, LucideList, LucideSparkles, LucideVideo, Send, Loader2 as Loader2Icon } from 'lucide-react'
 import AnswerDisplay from './AnswerDisplay'
 import axios from 'axios'
 import { useEffect } from 'react'
@@ -12,8 +12,6 @@ import ImageListTab from './ImageListTab'
 import SourceListTab from './SourceListTab'
 import VideoListTab from './VideoListTab'
 import { Button } from '../../../../../components/ui/button.jsx'
-import { Loader2Icon } from 'lucide-react'
-import { Send } from 'lucide-react'
 
 
 

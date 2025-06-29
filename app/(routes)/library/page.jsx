@@ -41,7 +41,7 @@ function Library () {
                   <div>
                     <h2 className='font-bold '>{item?.searchInput}</h2>
                     {/* <p>{library?.type}</p> */}
-                    <p className=' text-xs text-gray-500'>{moment(item.createdd_at).fromNow()}</p>
+                    <p className=' text-xs text-gray-500'>{moment(item.created_at).fromNow()}</p>
                    </div>
                    <SquareArrowOutUpRight className='w-5 h-5'/>
                     </div>
