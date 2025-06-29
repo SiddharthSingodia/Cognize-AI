@@ -28,9 +28,8 @@ function DisplayResult({searchInputRecord}) {
     const [searchResult,setSearchResult]=useState(SEARCH_RESULT);
     const{libId}=useParams();
     const [loadingSearch, setLoadingSearch]=useState(false);
-  
+    const [hasSearched, setHasSearched] = useState(false);
     const [userInput, setUserInput] = useState('');
-
 
     // Reset hasSearched when libId changes
     useEffect(() => {
@@ -41,7 +40,7 @@ function DisplayResult({searchInputRecord}) {
         // if (!searchInputRecord?.searchInput) {
         //     return;
         // }
-       searchInputRecord?.Chats?.length==0 ? GetSearchApiResult():GetSearchRecords;
+       searchInputRecord?.Chats?.length==0 ? GetSearchApiResult():GetSearchRecords();
        setSearchResult(searchInputRecord)  
     }, [searchInputRecord]);
 
