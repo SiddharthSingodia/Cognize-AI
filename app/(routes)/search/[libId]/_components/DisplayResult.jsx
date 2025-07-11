@@ -12,6 +12,7 @@ import ImageListTab from './ImageListTab'
 import SourceListTab from './SourceListTab'
 import VideoListTab from './VideoListTab'
 import { Button } from '../../../../../components/ui/button.jsx'
+import DisplaySummery from './DisplaySummery'
 
 
 
@@ -48,8 +49,8 @@ function DisplayResult({searchInputRecord}) {
        setLoadingSearch(true);
         const result = await axios.post('/api/search',{
             // query:searchInputRecord?.searchInput
-            searchInput:userInput??searchInputRecord?.searchInput,
-            searchType:searchInputRecord?.type??'Search'
+            searchInput: userInput || searchInputRecord?.searchInput,
+            searchType: searchInputRecord?.type || 'Search'
         })
         console.log(result.data);
         console.log(JSON.stringify(result.data))
@@ -164,7 +165,12 @@ function DisplayResult({searchInputRecord}) {
                     </div>
                 </div>
                 <div>
-                    {activeTab === 'Answer' ? <AnswerDisplay chat={chat} loadingSearch={loadingSearch}/> : 
+                    {activeTab === 'Answer' ? (
+                      <>
+                        <AnswerDisplay chat={chat} loadingSearch={loadingSearch}/>
+                        <DisplaySummery aiResp={chat.aiResp} />
+                      </>
+                    ) : 
                     activeTab=='Images'? <ImageListTab chat={chat} /> :
                     activeTab=='Sources'? <SourceListTab chat={chat}/>:
                     activeTab=='Videos'? <VideoListTab chat={chat}/>:

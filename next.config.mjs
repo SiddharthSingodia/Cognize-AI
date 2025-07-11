@@ -23,7 +23,8 @@ const nextConfig = {
       'takeuforward-content-images.s3.ap-south-1.amazonaws.com',
       'images.unsplash.com',
       'cdn.pixabay.com',
-      'via.placeholder.com'
+      'via.placeholder.com',
+      'static1.squarespace.com'
     ],
   },
 };
