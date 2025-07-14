@@ -73,21 +73,34 @@ import axios from 'axios'; // Import axios
 
 
 export async function POST(req) {
-  const { searchInput, searchType}=await req.json();
+  const { searchInput, searchType } = await req.json();
 
-
-  if(searchInput){ 
-   // Access your secret API keys from environment variables
+  if (searchInput) {
+    // Access your secret API keys from environment variables
     const apiKey = process.env.GOOGLE_API_KEY;
-     const searchEngineId = process.env.SEARCH_ENGINE_ID;
+    const searchEngineId = process.env.SEARCH_ENGINE_ID;
 
-     const result=await axios.get(`https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchInput)}&num=5`);
-     
+    let apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchInput)}&num=5`;
 
-     console.log(result.data);
- return NextResponse.json(result.data);
-  }
-  else{
-    return NextResponse.json({error:'Search input is required'}, {status:400});
+    // If the searchType is 'video', try to fetch only video results
+    if (searchType === 'video') {
+      // Option 1: If you have a dedicated video CSE, use its ID here
+      // const videoSearchEngineId = process.env.GOOGLE_VIDEO_SEARCH_ENGINE_ID;
+      // apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${videoSearchEngineId}&q=${encodeURIComponent(searchInput)}&num=5`;
+
+      // Option 2: Otherwise, append 'videos' to the query to bias results
+      apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchInput + ' videos')}&num=5`;
+    }
+
+    // If the searchType is 'image', use searchType=image for image-only results
+    if (searchType === 'image') {
+      apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchInput+ ' images')}&searchType=image&num=5`;
+    }
+
+    const result = await axios.get(apiUrl);
+    console.log(result.data);
+    return NextResponse.json(result.data);
+  } else {
+    return NextResponse.json({ error: 'Search input is required' }, { status: 400 });
   }
 }
